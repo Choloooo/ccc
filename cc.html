@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Culture Speedometer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --card-bg: linear-gradient(180deg,#ffffff, #fdfbfb);
+  --muted: #6b7280;
+  --shadow: 0 8px 30px rgba(16,24,40,0.08);
+  --accent: #4f46e5;
+}
+
+/* Base layout */
+html,body{height:100%;}
+body {
+  font-family: 'Inter', system-ui;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:0;
+  background:#f3f4f6;
+  padding:40px;
+  color:#0f172a;
+}
+
+.card{
+  width:760px;
+  max-width:95vw;
+  background:var(--card-bg);
+  border-radius:16px;
+  box-shadow:var(--shadow);
+  padding:22px;
+  display:flex;
+  gap:24px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+
+.left{flex:1 1 350px;padding:12px; min-width:300px;}
+.right{flex:1 1 300px;padding:8px 4px; min-width:280px;}
+
+h2{margin:0 0 8px;font-size:20px}
+p.lead{margin:0 0 18px;color:var(--muted)}
+
+svg{
+  width:100%;
+  height:auto;
+  max-height:260px;
+}
+
+.needle{
+  stroke:#111827;
+  stroke-width:4;
+  stroke-linecap:round;
+  transform-origin:175px 175px;
+  transition: transform 800ms cubic-bezier(.2,.9,.2,1), stroke 300ms ease;
+}
+.center-circle{fill:#0f172a}
+text.needle-value{font-size:24px;font-weight:700;fill:#111827;text-anchor:middle;dominant-baseline:middle;}
+
+.value-badge{display:flex;align-items:center;gap:10px;margin-top:16px}
+.score-pill{font-weight:700;padding:8px 12px;border-radius:999px;color:#111827}
+.level-pill{padding:6px 10px;border-radius:999px;background:rgba(79,70,229,0.12);color:#4f46e5;font-weight:600}
+
+/* Controls */
+.controls{display:grid;gap:12px}
+.control{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.control label{width:110px;font-size:13px;color:var(--muted)}
+.control input[type=range]{flex:1;min-width:150px;}
+.control .num{width:46px;text-align:right;font-weight:600}
+
+.actions{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+button{background:var(--accent);border:none;color:white;padding:8px 12px;border-radius:8px;cursor:pointer}
+
+/* ------------------------------- */
+/*         RESPONSIVE RULES        */
+/* ------------------------------- */
+
+/* Tablets */
+@media(max-width:900px){
+  body{padding:20px;}
+  .card{padding:18px;}
+  svg{max-height:220px;}
+}
+
+/* Phones */
+@media(max-width:600px){
+  body{padding:16px;}
+  .card{
+    flex-direction:column;
+    text-align:center;
+    gap:18px;
+  }
+
+  .left, .right{
+    padding:8px;
+    min-width:100%;
+  }
+
+  h2{font-size:18px;}
+  text.needle-value{font-size:20px;}
+
+  .value-badge{
+    justify-content:center;
+  }
+
+  .control label{
+    width:100%;
+    text-align:left;
+  }
+  .control{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:6px;
+  }
+  .control input[type=range]{
+    width:100%;
+  }
+}
+
+/* Very small phones */
+@media(max-width:400px){
+  svg{max-height:190px;}
+  h2{font-size:16px;}
+  body{padding:10px;}
+}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="left">
+    <h2>CCC Culture Diagnostic tool</h2>
+    <p class="lead">See a clear breakdown of your organization’s culture based on your responses.</p>
+
+    <svg viewBox="0 0 350 200">
+      <!-- COLOR GRADIENT -->
+      <defs>
+        <linearGradient id="gaugeGradient" gradientUnits="userSpaceOnUse" x1="50" y1="175" x2="300" y2="175">
+          <stop offset="0%" stop-color="#FF0000"/>
+          <stop offset="75%" stop-color="#FFFF00"/>
+          <stop offset="100%" stop-color="#00FF00"/>
+        </linearGradient>
+      </defs>
+
+      <!-- Gauge Arc -->
+      <path d="M50,175 A125,125 0 0,1 300,175"
+            stroke="url(#gaugeGradient)"
+            fill="none"
+            stroke-width="22"
+            stroke-linecap="round"/>
+
+      <!-- Minor Tick Marks -->
+      <g id="minorTicks"></g>
+
+      <!-- Needle -->
+      <line x1="175" y1="175" x2="50" y2="175" class="needle" id="needle" />
+      <circle cx="175" cy="175" r="7" class="center-circle" />
+
+      <!-- Needle Value -->
+      <text id="needleValue" class="needle-value" x="175" y="145">—</text>
+
+      <!-- Major Numbers -->
+      <g id="majorNumbers"></g>
+    </svg>
+
+    <div class="value-badge">
+      <div class="score-pill" id="scorePill">—</div>
+      <div class="level-pill" id="levelPill">—</div>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="controls">
+
+      <div class="control">
+        <label>Leadership</label>
+        <input id="Leadership" type="range" min="1" max="5" step="0.01" value="3">
+        <div class="num" id="LeadershipVal">3.00</div>
+      </div>
+
+      <div class="control">
+        <label>Accountability</label>
+        <input id="Accountability" type="range" min="1" max="5" step="0.01" value="2">
+        <div class="num" id="AccountabilityVal">2.00</div>
+      </div>
+
+      <div class="control">
+        <label>Speak up</label>
+        <input id="SpeakUp" type="range" min="1" max="5" step="0.01" value="3">
+        <div class="num" id="SpeakUpVal">3.00</div>
+      </div>
+
+      <div class="control">
+        <label>Risk Awareness</label>
+        <input id="RiskAwareness" type="range" min="1" max="5" step="0.01" value="2.5">
+        <div class="num" id="RiskAwarenessVal">2.50</div>
+      </div>
+
+      <div class="actions">
+        <button id="randomBtn">Randomize</button>
+        <button id="resetBtn" style="background:#111827">Reset</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const fields = ['Leadership','Accountability','SpeakUp','RiskAwareness'];
+const maxScore = 5;
+
+const needle = document.getElementById("needle");
+const scorePill = document.getElementById("scorePill");
+const levelPill = document.getElementById("levelPill");
+const needleValue = document.getElementById("needleValue");
+const minorTicksGroup = document.getElementById("minorTicks");
+const majorNumbersGroup = document.getElementById("majorNumbers");
+
+// Draw minor ticks for 0°–180° semicircle
+function drawMinorTicks(){
+  const centerX = 175;
+  const centerY = 175;
+  const radius = 125;
+  const tickLength = 5;
+  const minorSegments = 4; 
+  const totalTicks = (maxScore-1)*minorSegments; 
+  for(let i=1; i<totalTicks; i++){
+    const angle = (180/totalTicks)*i; 
+    const rad = angle*Math.PI/180;
+    const x1 = centerX + (radius-tickLength)*Math.cos(rad);
+    const y1 = centerY - (radius-tickLength)*Math.sin(rad);
+    const x2 = centerX + radius*Math.cos(rad);
+    const y2 = centerY - radius*Math.sin(rad);
+    const tick = document.createElementNS("http://www.w3.org/2000/svg","line");
+    tick.setAttribute("x1",x1);
+    tick.setAttribute("y1",y1);
+    tick.setAttribute("x2",x2);
+    tick.setAttribute("y2",y2);
+    tick.setAttribute("stroke","#374151");
+    tick.setAttribute("stroke-width","1.5");
+    minorTicksGroup.appendChild(tick);
+  }
+}
+
+// Draw major numbers inside the gauge
+function drawMajorNumbersInside(){
+  const centerX = 175;
+  const centerY = 175;
+  const radius = 125;
+  const numberRadius = radius - 25; 
+  const numbers = [1,2,3,4,5];
+  numbers.forEach((num, i)=>{
+    const angle = (i / (numbers.length - 1)) * 180; 
+    const rad = angle * Math.PI / 180;
+    const x = centerX + numberRadius * Math.cos(rad - Math.PI); 
+    const y = centerY - numberRadius * Math.sin(rad);
+    const text = document.createElementNS("http://www.w3.org/2000/svg","text");
+    text.setAttribute("x", x);
+    text.setAttribute("y", y);
+    text.setAttribute("font-size","16");
+    text.setAttribute("font-weight","600");
+    text.setAttribute("text-anchor","middle");
+    text.setAttribute("dominant-baseline","middle");
+    text.setAttribute("fill","#374151");
+    text.textContent = num;
+    majorNumbersGroup.appendChild(text);
+  });
+}
+
+// Animate numeric values
+function animateValue(el, start, end, duration){
+  const range = end - start;
+  let startTime = null;
+  function step(timestamp){
+    if(!startTime) startTime = timestamp;
+    const progress = Math.min((timestamp - startTime)/duration, 1);
+    el.textContent = (start + range*progress).toFixed(2);
+    if(progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// Gradient color function
+function getGradientColor(avg) {
+  const t = (avg - 1) / (maxScore - 1);
+  let r, g, b;
+  if (t <= 0.5) {
+    const p = t / 0.5;
+    r = 255;
+    g = Math.round(0 + (255 - 0) * p);
+    b = 0;
+  } else {
+    const p = (t - 0.5) / 0.5;
+    r = Math.round(255 - 255 * p);
+    g = 255;
+    b = 0;
+  }
+  return `rgb(${r},${g},${b})`;
+}
+
+// Compute textual level
+function computeLevel(avg){
+  if(avg < 2) return "Emerging";
+  if(avg < 3) return "Developing";
+  if(avg < 4) return "Established";
+  return "Strategic";
+}
+
+// Update gauge
+function update(){
+  const scores = fields.map(k=>parseFloat(document.getElementById(k).value));
+  const avg = scores.reduce((a,b)=>a+b,0)/scores.length;
+
+  const deg = (avg-1)/(maxScore-1) * 180;
+  needle.style.transform = `rotate(${deg}deg)`;
+
+  const color = getGradientColor(avg);
+  needle.style.stroke = color;
+  scorePill.style.background = color;
+  scorePill.style.color = '#111827';
+
+  animateValue(needleValue, parseFloat(needleValue.textContent)||0, avg, 500);
+  animateValue(scorePill, parseFloat(scorePill.textContent)||0, avg, 500);
+  levelPill.textContent = computeLevel(avg);
+
+  fields.forEach(k=>{
+    document.getElementById(k+"Val").textContent =
+      parseFloat(document.getElementById(k).value).toFixed(2);
+  });
+}
+
+// Event listeners
+fields.forEach(k=>{
+  document.getElementById(k).addEventListener("input", update);
+});
+
+document.getElementById("randomBtn").addEventListener("click",()=>{
+  fields.forEach(k=>{
+    const r = (1 + Math.random()*4).toFixed(2);
+    document.getElementById(k).value = r;
+  });
+  update();
+});
+
+document.getElementById("resetBtn").addEventListener("click",()=>{
+  const defaults = {Leadership:3,Accountability:2,SpeakUp:3,RiskAwareness:2.5};
+  fields.forEach(k=>document.getElementById(k).value = defaults[k]);
+  update();
+});
+
+// Initialize
+drawMinorTicks();
+drawMajorNumbersInside();
+update();
+</script>
+
+</body>
+</html>
