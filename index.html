@@ -38,15 +38,15 @@ body {
   padding:22px;
   display:flex;
   gap:24px;
-  align-items:center;
+  align-items:flex-start;
   flex-wrap:wrap;
 }
 
-.left{flex:1 1 350px;padding:12px; min-width:300px;}
-.right{flex:1 1 300px;padding:8px 4px; min-width:280px;}
+.left{flex:1 1 350px; padding:12px; min-width:0; word-break: break-word;}
+.right{flex:1 1 300px; padding:8px 4px; min-width:0;}
 
-h2{margin:0 0 8px;font-size:20px}
-p.lead{margin:0 0 18px;color:var(--muted)}
+h2{margin:0 0 8px;font-size:20px; word-break: break-word;}
+p.lead{margin:0 0 18px;color:var(--muted); word-break: break-word;}
 
 svg{
   width:100%;
@@ -64,7 +64,7 @@ svg{
 .center-circle{fill:#0f172a}
 text.needle-value{font-size:24px;font-weight:700;fill:#111827;text-anchor:middle;dominant-baseline:middle;}
 
-.value-badge{display:flex;align-items:center;gap:10px;margin-top:16px}
+.value-badge{display:flex;align-items:center;gap:10px;margin-top:16px; flex-wrap:wrap; justify-content:center;}
 .score-pill{font-weight:700;padding:8px 12px;border-radius:999px;color:#111827}
 .level-pill{padding:6px 10px;border-radius:999px;background:rgba(79,70,229,0.12);color:#4f46e5;font-weight:600}
 
@@ -96,14 +96,19 @@ button{background:var(--accent);border:none;color:white;padding:8px 12px;border-
     flex-direction:column;
     text-align:center;
     gap:18px;
+    width:100%;
+    max-width:100%;
+    padding:16px;
   }
 
   .left, .right{
     padding:8px;
     min-width:100%;
+    flex:1 1 auto;
   }
 
   h2{font-size:18px;}
+  p.lead{font-size:14px;}
   text.needle-value{font-size:20px;}
 
   .value-badge{
@@ -126,10 +131,15 @@ button{background:var(--accent);border:none;color:white;padding:8px 12px;border-
 
 /* Very small phones */
 @media(max-width:400px){
+  body{padding:10px;}
   svg{max-height:190px;}
   h2{font-size:16px;}
-  body{padding:10px;}
+  p.lead{font-size:13px;}
+  .value-badge{flex-direction:column; gap:6px;}
+  .control label{font-size:12px;}
+  .control .num{font-size:12px;}
 }
+
 </style>
 </head>
 <body>
