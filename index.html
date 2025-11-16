@@ -7,7 +7,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-
 <style>
 :root{
   --card-bg: linear-gradient(180deg,#ffffff, #fdfbfb);
@@ -16,17 +15,16 @@
   --accent: #4f46e5;
 }
 
-/* Base layout */
-html,body{height:100%;}
+html,body{height:100%; margin:0;}
 body {
   font-family: 'Inter', system-ui;
   display:flex;
   align-items:center;
   justify-content:center;
-  margin:0;
   background:#f3f4f6;
-  padding:40px;
+  padding:20px;
   color:#0f172a;
+  overflow-x:hidden;
 }
 
 .card{
@@ -38,15 +36,15 @@ body {
   padding:22px;
   display:flex;
   gap:24px;
-  align-items:flex-start;
+  align-items:center;
   flex-wrap:wrap;
 }
 
-.left{flex:1 1 350px; padding:12px; min-width:0; word-break: break-word;}
-.right{flex:1 1 300px; padding:8px 4px; min-width:0;}
+.left{flex: none; padding:12px; min-width:300px;}
+.right{flex: none; padding:8px 4px; min-width:280px;}
 
-h2{margin:0 0 8px;font-size:20px; word-break: break-word;}
-p.lead{margin:0 0 18px;color:var(--muted); word-break: break-word;}
+h2{margin:0 0 8px;font-size:20px}
+p.lead{margin:0 0 18px;color:var(--muted)}
 
 svg{
   width:100%;
@@ -58,13 +56,13 @@ svg{
   stroke:#111827;
   stroke-width:4;
   stroke-linecap:round;
-  transform-origin:175px 175px;
+  transform-origin:50% 87.5%; /* dynamic origin */
   transition: transform 800ms cubic-bezier(.2,.9,.2,1), stroke 300ms ease;
 }
 .center-circle{fill:#0f172a}
 text.needle-value{font-size:24px;font-weight:700;fill:#111827;text-anchor:middle;dominant-baseline:middle;}
 
-.value-badge{display:flex;align-items:center;gap:10px;margin-top:16px; flex-wrap:wrap; justify-content:center;}
+.value-badge{display:flex;align-items:center;gap:10px;margin-top:16px;justify-content:center;}
 .score-pill{font-weight:700;padding:8px 12px;border-radius:999px;color:#111827}
 .level-pill{padding:6px 10px;border-radius:999px;background:rgba(79,70,229,0.12);color:#4f46e5;font-weight:600}
 
@@ -91,30 +89,17 @@ button{background:var(--accent);border:none;color:white;padding:8px 12px;border-
 
 /* Phones */
 @media(max-width:600px){
-  body{padding:16px;}
   .card{
     flex-direction:column;
     text-align:center;
     gap:18px;
-    width:100%;
-    max-width:100%;
-    padding:16px;
   }
-
   .left, .right{
     padding:8px;
     min-width:100%;
-    flex:1 1 auto;
   }
-
   h2{font-size:18px;}
-  p.lead{font-size:14px;}
   text.needle-value{font-size:20px;}
-
-  .value-badge{
-    justify-content:center;
-  }
-
   .control label{
     width:100%;
     text-align:left;
@@ -124,22 +109,17 @@ button{background:var(--accent);border:none;color:white;padding:8px 12px;border-
     align-items:flex-start;
     gap:6px;
   }
-  .control input[type=range]{
-    width:100%;
-  }
+  .control input[type=range]{width:100%;}
 }
 
 /* Very small phones */
 @media(max-width:400px){
-  body{padding:10px;}
   svg{max-height:190px;}
   h2{font-size:16px;}
-  p.lead{font-size:13px;}
-  .value-badge{flex-direction:column; gap:6px;}
-  .control label{font-size:12px;}
-  .control .num{font-size:12px;}
+  text.needle-value{font-size:16px;}
+  #majorNumbers text{font-size:12px;}
+  body{padding:10px;}
 }
-
 </style>
 </head>
 <body>
@@ -149,9 +129,7 @@ button{background:var(--accent);border:none;color:white;padding:8px 12px;border-
     <h2>CCC Culture Diagnostic tool</h2>
     <p class="lead">See a clear breakdown of your organization’s culture based on your responses.</p>
 
-
     <svg viewBox="0 0 350 200">
-      <!-- COLOR GRADIENT -->
       <defs>
         <linearGradient id="gaugeGradient" gradientUnits="userSpaceOnUse" x1="50" y1="175" x2="300" y2="175">
           <stop offset="0%" stop-color="#FF0000"/>
@@ -159,25 +137,11 @@ button{background:var(--accent);border:none;color:white;padding:8px 12px;border-
           <stop offset="100%" stop-color="#00FF00"/>
         </linearGradient>
       </defs>
-
-      <!-- Gauge Arc -->
-      <path d="M50,175 A125,125 0 0,1 300,175"
-            stroke="url(#gaugeGradient)"
-            fill="none"
-            stroke-width="22"
-            stroke-linecap="round"/>
-
-      <!-- Minor Tick Marks -->
+      <path d="M50,175 A125,125 0 0,1 300,175" stroke="url(#gaugeGradient)" fill="none" stroke-width="22" stroke-linecap="round"/>
       <g id="minorTicks"></g>
-
-      <!-- Needle -->
-      <line x1="175" y1="175" x2="50" y2="175" class="needle" id="needle" />
-      <circle cx="175" cy="175" r="7" class="center-circle" />
-
-      <!-- Needle Value -->
+      <line x1="175" y1="175" x2="50" y2="175" class="needle" id="needle"/>
+      <circle cx="175" cy="175" r="7" class="center-circle"/>
       <text id="needleValue" class="needle-value" x="175" y="145">—</text>
-
-      <!-- Major Numbers -->
       <g id="majorNumbers"></g>
     </svg>
 
@@ -189,36 +153,30 @@ button{background:var(--accent);border:none;color:white;padding:8px 12px;border-
 
   <div class="right">
     <div class="controls">
-
       <div class="control">
         <label>Leadership</label>
         <input id="Leadership" type="range" min="1" max="5" step="0.01" value="3">
         <div class="num" id="LeadershipVal">3.00</div>
       </div>
-
       <div class="control">
         <label>Accountability</label>
         <input id="Accountability" type="range" min="1" max="5" step="0.01" value="2">
         <div class="num" id="AccountabilityVal">2.00</div>
       </div>
-
       <div class="control">
         <label>Speak up</label>
         <input id="SpeakUp" type="range" min="1" max="5" step="0.01" value="3">
         <div class="num" id="SpeakUpVal">3.00</div>
       </div>
-
       <div class="control">
         <label>Risk Awareness</label>
         <input id="RiskAwareness" type="range" min="1" max="5" step="0.01" value="2.5">
         <div class="num" id="RiskAwarenessVal">2.50</div>
       </div>
-
       <div class="actions">
         <button id="randomBtn">Randomize</button>
         <button id="resetBtn" style="background:#111827">Reset</button>
       </div>
-
     </div>
   </div>
 </div>
@@ -234,12 +192,9 @@ const needleValue = document.getElementById("needleValue");
 const minorTicksGroup = document.getElementById("minorTicks");
 const majorNumbersGroup = document.getElementById("majorNumbers");
 
-// Draw minor ticks for 0°–180° semicircle
+// Draw minor ticks
 function drawMinorTicks(){
-  const centerX = 175;
-  const centerY = 175;
-  const radius = 125;
-  const tickLength = 5;
+  const centerX = 175, centerY = 175, radius = 125, tickLength = 5;
   const minorSegments = 4; 
   const totalTicks = (maxScore-1)*minorSegments; 
   for(let i=1; i<totalTicks; i++){
@@ -250,21 +205,16 @@ function drawMinorTicks(){
     const x2 = centerX + radius*Math.cos(rad);
     const y2 = centerY - radius*Math.sin(rad);
     const tick = document.createElementNS("http://www.w3.org/2000/svg","line");
-    tick.setAttribute("x1",x1);
-    tick.setAttribute("y1",y1);
-    tick.setAttribute("x2",x2);
-    tick.setAttribute("y2",y2);
-    tick.setAttribute("stroke","#374151");
-    tick.setAttribute("stroke-width","1.5");
+    tick.setAttribute("x1",x1); tick.setAttribute("y1",y1);
+    tick.setAttribute("x2",x2); tick.setAttribute("y2",y2);
+    tick.setAttribute("stroke","#374151"); tick.setAttribute("stroke-width","1.5");
     minorTicksGroup.appendChild(tick);
   }
 }
 
 // Draw major numbers inside the gauge
 function drawMajorNumbersInside(){
-  const centerX = 175;
-  const centerY = 175;
-  const radius = 125;
+  const centerX = 175, centerY = 175, radius = 125;
   const numberRadius = radius - 25; 
   const numbers = [1,2,3,4,5];
   numbers.forEach((num, i)=>{
@@ -273,12 +223,9 @@ function drawMajorNumbersInside(){
     const x = centerX + numberRadius * Math.cos(rad - Math.PI); 
     const y = centerY - numberRadius * Math.sin(rad);
     const text = document.createElementNS("http://www.w3.org/2000/svg","text");
-    text.setAttribute("x", x);
-    text.setAttribute("y", y);
-    text.setAttribute("font-size","16");
-    text.setAttribute("font-weight","600");
-    text.setAttribute("text-anchor","middle");
-    text.setAttribute("dominant-baseline","middle");
+    text.setAttribute("x", x); text.setAttribute("y", y);
+    text.setAttribute("font-size","16"); text.setAttribute("font-weight","600");
+    text.setAttribute("text-anchor","middle"); text.setAttribute("dominant-baseline","middle");
     text.setAttribute("fill","#374151");
     text.textContent = num;
     majorNumbersGroup.appendChild(text);
@@ -304,14 +251,10 @@ function getGradientColor(avg) {
   let r, g, b;
   if (t <= 0.5) {
     const p = t / 0.5;
-    r = 255;
-    g = Math.round(0 + (255 - 0) * p);
-    b = 0;
+    r = 255; g = Math.round(0 + (255 - 0) * p); b = 0;
   } else {
     const p = (t - 0.5) / 0.5;
-    r = Math.round(255 - 255 * p);
-    g = 255;
-    b = 0;
+    r = Math.round(255 - 255 * p); g = 255; b = 0;
   }
   return `rgb(${r},${g},${b})`;
 }
